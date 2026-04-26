@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#ffe5ee" />
+<title>彼氏彼女ガチャ</title>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+P+One&family=Kosugi+Maru&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box}html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{font-family:"Kosugi Maru",system-ui,sans-serif;color:#3a0040;background:linear-gradient(180deg,#ffe5ee,#ffb8cf);touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent}
+#app{display:flex;flex-direction:column;height:100dvh;padding:14px;gap:10px;max-width:480px;margin:0 auto}
+.title{font-family:"Mochiy Pop P One",sans-serif;font-size:24px;color:#ff5fa2;-webkit-text-stroke:2.5px #fff;paint-order:stroke fill;text-shadow:3px 3px 0 #3a0040;text-align:center;margin:6px 0;transform:rotate(-2deg)}
+.input-row{display:flex;gap:8px}
+.input-row input{flex:1;background:#fff;border:2.5px solid #3a0040;border-radius:12px;padding:10px;font-family:inherit;font-size:15px}
+.gen-row{display:flex;gap:6px;justify-content:center}
+.gen-row button{flex:1;background:#ff5fa2;color:#fff;border:3px solid #3a0040;padding:10px;font-family:"Mochiy Pop P One",sans-serif;font-size:13px;border-radius:12px;cursor:pointer;box-shadow:3px 3px 0 #3a0040}
+.gen-row button.alt{background:#5fc4ff}
+.gen-row button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #3a0040}
+.card{flex:1;min-height:0;background:#fff;border:3px solid #3a0040;border-radius:18px;padding:18px;box-shadow:4px 4px 0 #3a0040;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.card.empty{align-items:center;justify-content:center;text-align:center;opacity:.5}
+.card .head{display:flex;align-items:center;gap:12px;border-bottom:2px dashed #ffb8cf;padding-bottom:12px}
+.card .ava{font-size:64px;line-height:1}
+.card .head .info{flex:1}
+.card .head .name{font-family:"Mochiy Pop P One",sans-serif;font-size:22px;color:#ff5fa2}
+.card .head .sub{font-size:11px;opacity:.7;margin-top:2px}
+.card .row{display:flex;gap:8px;font-size:13px}
+.card .row .k{flex:0 0 70px;font-weight:bold;color:#ff5fa2}
+.card .row .v{flex:1}
+.card .danger{margin-top:8px;padding:10px;background:#fff5f8;border:2px dashed #ff5fa2;border-radius:10px;font-size:12px;line-height:1.6}
+.card .danger b{color:#d93a1a}
+.actions{display:flex;gap:8px}
+.actions button{flex:1;background:#fff;color:#3a0040;border:3px solid #3a0040;padding:10px;font-family:"Mochiy Pop P One",sans-serif;font-size:12px;border-radius:12px;cursor:pointer;box-shadow:2px 2px 0 #3a0040}
+.actions .share{background:#1da1f2;color:#fff}
+.actions button:disabled{opacity:.4}
+.actions button:active{transform:translate(2px,2px);box-shadow:0 0 0 #3a0040}
+.note{font-size:9px;opacity:.6;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+<h1 class="title">彼氏彼女ガチャ 💝</h1>
+<div class="input-row">
+  <input id="name" type="text" placeholder="あなたの名前 / イニシャル" maxlength="20"/>
+</div>
+<div class="gen-row">
+  <button id="btn-bf">👨 彼氏ガチャ</button>
+  <button id="btn-gf" class="alt">👩 彼女ガチャ</button>
+</div>
+<div class="card empty" id="card">名前を入れて<br/>ボタンを押してね 💕</div>
+<div class="actions">
+  <button id="btn-redo" disabled>🔄 もう1回</button>
+  <button id="btn-share" class="share" disabled>🔗 シェア</button>
+</div>
+<div class="note">※完全フィクション。ジョーク用です</div>
+</div>
+<script>
+(()=>{
+'use strict';
+const SHARE_URL='https://maxtakaharu34-cmd.github.io/koibito-jp/';
+const BF_NAMES=['翔太','大輔','拓海','蓮','陸斗','颯太','悠真','駿','陽斗','龍之介','直人','健太','雅也','耕平','涼介','一輝','智也','慎吾','秀人','航平'];
+const GF_NAMES=['美咲','彩花','結衣','詩織','陽菜','ひより','茉莉','里奈','彩乃','ゆめ','凛','千夏','麻衣','奈々','由紀','咲良','ほのか','麗奈','璃子','花音'];
+const BF_AVA=['👨','🤵','👨‍🎤','👨‍💼','👨‍🍳','👨‍🌾','🧑‍🚀','👨‍⚕️','👨‍🔬','🧑‍🎨'];
+const GF_AVA=['👩','👰','👩‍🎤','👩‍💼','👩‍🍳','👩‍🌾','🧑‍🚀','👩‍⚕️','👩‍🔬','🧑‍🎨'];
+const JOBS=['会社員','医者','美容師','公務員','エンジニア','カフェ店員','看護師','保育士','配信者','カメラマン','ヨガインストラクター','編集者','イラストレーター','ホスト','声優志望'];
+const HOBBIES=['筋トレ','読書','映画鑑賞','麻雀','ゲーム実況','カラオケ','釣り','サウナ','ラーメン巡り','カフェ巡り','旅行','料理','コスプレ','音楽フェス','ダーツ'];
+const TRAITS=['几帳面','テキトー','ロマンチスト','現実主義','寂しがり','構ってちゃん','クール','天然','負けず嫌い','マイペース','人見知り','陽キャ','ドM気質','ドS気質','子供っぽい'];
+const QUIRKS=['朝5時起き','夜型','スマホ依存','財布忘れがち','音痴','ガチオタ','元アイドル追いかけ人','元ヤン','整形済み','宗教ガチ勢','SNS病','親離れできてない','プライド高すぎ','過去にバンドやってた','離婚歴あり','元彼/カノに未練','借金あり','ペット6匹飼い','ヴィーガン','ASMR中毒'];
+const $=(id)=>document.getElementById(id);
+function rng(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/0x100000000}}
+function pick(arr,r){return arr[Math.floor(r()*arr.length)]}
+function hash(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h}
+let lastResult=null;
+function gen(kind){
+  const name=$('name').value.trim()||'匿名';
+  const seed=hash(name+kind+Date.now());
+  const r=rng(seed);
+  const target=kind==='bf'?{names:BF_NAMES,avas:BF_AVA}:{names:GF_NAMES,avas:GF_AVA};
+  const tname=pick(target.names,r);
+  const ava=pick(target.avas,r);
+  const age=20+Math.floor(r()*22);
+  const job=pick(JOBS,r);
+  const income=Math.floor(r()*900+200);
+  const hobby1=pick(HOBBIES,r),hobby2=pick(HOBBIES,r);
+  const trait=pick(TRAITS,r);
+  const quirk=pick(QUIRKS,r);
+  const compat=Math.floor(r()*61+40);
+  const c=$('card');while(c.firstChild)c.removeChild(c.firstChild);c.classList.remove('empty');
+  const head=document.createElement('div');head.className='head';
+  const a=document.createElement('div');a.className='ava';a.textContent=ava;
+  const info=document.createElement('div');info.className='info';
+  const nm=document.createElement('div');nm.className='name';nm.textContent=tname;
+  const sub=document.createElement('div');sub.className='sub';sub.textContent=`${age}歳 / ${job} / 推定年収 ${income}万円`;
+  info.appendChild(nm);info.appendChild(sub);
+  head.appendChild(a);head.appendChild(info);
+  c.appendChild(head);
+  function row(k,v){const r=document.createElement('div');r.className='row';
+    const kk=document.createElement('div');kk.className='k';kk.textContent=k;
+    const vv=document.createElement('div');vv.className='v';vv.textContent=v;
+    r.appendChild(kk);r.appendChild(vv);return r}
+  c.appendChild(row('趣味',`${hobby1}・${hobby2}`));
+  c.appendChild(row('性格',trait));
+  c.appendChild(row('相性',`${compat}%`));
+  const danger=document.createElement('div');danger.className='danger';
+  const lab=document.createElement('b');lab.textContent='⚠ ヤバい癖：';
+  danger.appendChild(lab);danger.appendChild(document.createTextNode(quirk));
+  c.appendChild(danger);
+  $('btn-redo').disabled=false;$('btn-share').disabled=false;
+  lastResult={kind,tname,age,job,compat,quirk};
+  beep(880,.1);setTimeout(()=>beep(1175,.18),100);
+}
+let ac=null;const en=()=>{if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac};
+const beep=(f,d,t='triangle',g=.13)=>{const a=en();const o=a.createOscillator();const gn=a.createGain();o.type=t;o.frequency.value=f;gn.gain.value=g;gn.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(gn).connect(a.destination);o.start();o.stop(a.currentTime+d)};
+let lastKind='bf';
+$('btn-bf').addEventListener('click',()=>{en();lastKind='bf';gen('bf')});
+$('btn-gf').addEventListener('click',()=>{en();lastKind='gf';gen('gf')});
+$('btn-redo').addEventListener('click',()=>{en();gen(lastKind)});
+$('btn-share').addEventListener('click',()=>{
+  if(!lastResult)return;
+  const k=lastResult.kind==='bf'?'彼氏':'彼女';
+  const txt=`【${k}ガチャ】${lastResult.tname}(${lastResult.age})・${lastResult.job}・相性${lastResult.compat}%・ヤバい癖「${lastResult.quirk}」 #彼氏彼女ガチャ`;
+  window.open(`https://x.com/intent/post?text=${encodeURIComponent(txt)}&url=${encodeURIComponent(SHARE_URL)}`,'_blank','noopener,noreferrer');
+});
+})();
+</script>
+</body>
+</html>
